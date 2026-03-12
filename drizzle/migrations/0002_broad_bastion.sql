@@ -1,0 +1,1 @@
+ALTER TABLE "topofmind"."notes" ADD COLUMN "audio_storage_key" text;

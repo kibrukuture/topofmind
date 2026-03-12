@@ -1,0 +1,54 @@
+{
+  "people": [
+    {
+      "id": 1773241179262,
+      "name": "Sarah Chen",
+      "company": "Stripe",
+      "role": "CTO"
+    },
+    {
+      "id": 1773241179262,
+      "name": "James Wright",
+      "company": "Stripe",
+      "role": "Head of Payments Team"
+    },
+    {
+      "id": 1773241257919,
+      "name": "Sarah Chen",
+      "company": "Stripe",
+      "role": "CTO"
+    },
+    {
+      "id": 1773241257919,
+      "name": "James Wright",
+      "company": "Stripe",
+      "role": "Head of Payments Team"
+    }
+  ],
+  "commitments": [
+    {
+      "id": 1773241179262,
+      "person_name": "Sarah Chen",
+      "action": "follow up about a potential partnership",
+      "due_date": "2 weeks from now"
+    },
+    {
+      "id": 1773241179262,
+      "person_name": "James Wright",
+      "action": "give a demo",
+      "due_date": "next Monday"
+    },
+    {
+      "id": 1773241257920,
+      "person_name": "Sarah Chen",
+      "action": "Follow up about a potential partnership",
+      "due_date": "2 weeks from now"
+    },
+    {
+      "id": 1773241257920,
+      "person_name": "James Wright",
+      "action": "Give a demo",
+      "due_date": "Next Monday"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+ALTER TABLE "topofmind"."notes" ADD COLUMN "embedding" vector(768);--> statement-breakpoint
+CREATE INDEX "notes_embedding_idx" ON "topofmind"."notes" USING ivfflat ("embedding" vector_cosine_ops) WITH (lists=100);
