@@ -6,6 +6,7 @@ export const notes = topofmindSchema.table(
   {
     id: uuid("id").defaultRandom().primaryKey(),
 
+    title: text("title"),
     rawText: text("raw_text").notNull(),
     audioStorageKey: text("audio_storage_key"),
     embedding: vector("embedding", { dimensions: 768 }),

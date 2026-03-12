@@ -21,18 +21,18 @@ import {
 import { noteFormSchema, type NoteFormValues } from "@/validators/note-form.validator"
 import { useProcessNote } from "@/hooks/agent/use-process-note"
 import { useLatestNoteResult } from "@/hooks/agent/use-latest-note-result"
-
-type OrbState = "idle" | "recording" | "transcribing" | "processing" | "done"
+import { useRecordingStore } from "@/stores/recording-store"
 
 export default function Home() {
-  const [orbState, setOrbState] = useState<OrbState>("idle")
   const [showTypeInput, setShowTypeInput] = useState<boolean>(false)
   const [refreshFeed, setRefreshFeed] = useState<number>(0)
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
-  const chunksRef = useRef<Blob[]>([])
-  const micStreamRef = useRef<MediaStream | null>(null)
   const doneTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const state = useRecordingStore((s) => s.state)
+  const setState = useRecordingStore((s) => s.setState)
+  const startRecording = useRecordingStore((s) => s.startRecording)
+  const stopRecording = useRecordingStore((s) => s.stopRecording)
+  const stopAll = useRecordingStore((s) => s.stopAll)
 
   const processNoteMutation = useProcessNote()
   const latestNoteQuery = useLatestNoteResult()
@@ -40,25 +40,20 @@ export default function Home() {
 
   // auto reset done → idle after 3s
   useEffect(() => {
-    if (orbState === "done") {
-      doneTimerRef.current = setTimeout(() => setOrbState("idle"), 3000)
+    if (state === "done") {
+      doneTimerRef.current = setTimeout(() => setState("idle"), 3000)
     }
     return () => {
       if (doneTimerRef.current) clearTimeout(doneTimerRef.current)
     }
-  }, [orbState])
+  }, [state, setState])
 
   // kill mic stream on unmount
   useEffect(() => {
     return () => {
-      micStreamRef.current?.getTracks().forEach((t) => t.stop())
+      stopAll()
     }
-  }, [])
-
-  const stopMicStream = (): void => {
-    micStreamRef.current?.getTracks().forEach((t) => t.stop())
-    micStreamRef.current = null
-  }
+  }, [stopAll])
 
   const typeForm = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
@@ -66,51 +61,26 @@ export default function Home() {
   })
 
   const runProcessNote = async (input: { text?: string; audio?: Blob }): Promise<void> => {
-    setOrbState("processing")
+    setState("processing")
     try {
       await processNoteMutation.mutateAsync(input)
-      setOrbState("done")
+      setState("done")
       setRefreshFeed((v) => v + 1)
     } catch {
-      setOrbState("idle")
+      setState("idle")
     }
   }
 
   const handleOrbTap = async (): Promise<void> => {
-    // block taps while busy
-    if (orbState === "transcribing" || orbState === "processing") return
+    if (state === "transcribing" || state === "processing") return
 
-    if (orbState === "idle" || orbState === "done") {
+    if (state === "idle" || state === "done") {
       if (doneTimerRef.current) clearTimeout(doneTimerRef.current)
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-        micStreamRef.current = stream
-
-        const mediaRecorder = new MediaRecorder(stream)
-        mediaRecorderRef.current = mediaRecorder
-        chunksRef.current = []
-
-        mediaRecorder.ondataavailable = (e: BlobEvent): void => {
-          if (e.data.size > 0) chunksRef.current.push(e.data)
-        }
-
-        mediaRecorder.onstop = async (): Promise<void> => {
-          // stop mic immediately — kills browser recording indicator in tab
-          stopMicStream()
-          setOrbState("transcribing")
-          const blob = new Blob(chunksRef.current, { type: "audio/webm" })
-          await runProcessNote({ audio: blob })
-        }
-
-        mediaRecorder.start()
-        setOrbState("recording")
-      } catch {
-        setOrbState("idle")
-      }
-
-    } else if (orbState === "recording") {
-      mediaRecorderRef.current?.stop()
+      await startRecording(async (blob) => {
+        await runProcessNote({ audio: blob })
+      })
+    } else if (state === "recording") {
+      stopRecording()
     }
   }
 
@@ -168,7 +138,7 @@ export default function Home() {
 
           <div className="flex items-center gap-8">
             <div className="w-20" />
-            <Orb state={orbState} onTap={handleOrbTap} />
+            <Orb onTap={handleOrbTap} />
             <button
               onClick={() => setShowTypeInput((v) => !v)}
               className="w-20 text-[11px] text-neutral-400 hover:text-neutral-600 transition-colors text-left whitespace-nowrap"
@@ -177,7 +147,7 @@ export default function Home() {
             </button>
           </div>
 
-          <StatusText state={orbState} />
+          <StatusText />
 
           <AnimatePresence>
             {showTypeInput && (

@@ -6,6 +6,7 @@ import { apiSuccessResponse, apiErrorResponse, ErrorCode } from "@/configs/api";
 
 export type NoteWithPeople = {
   id: string;
+  title: string | null;
   rawText: string;
   audioStorageKey: string | null;
   createdAt: string;
@@ -52,6 +53,7 @@ export async function GET() {
 
     return {
       id: note.id,
+      title: note.title ?? null,
       rawText: note.rawText,
       audioStorageKey: note.audioStorageKey,
       createdAt: note.createdAt.toISOString(),

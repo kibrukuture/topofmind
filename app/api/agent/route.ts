@@ -116,7 +116,7 @@ export async function POST(req: Request) {
   const tools = agentTools(db, note.id);
   const generation = await generateText({
     model: google("gemini-2.5-flash"),
-    system: `You are a relationship memory assistant. Process raw notes about meetings, conversations, and interactions. Extract all people mentioned, their details, any commitments or follow-up actions, and any personal details worth remembering. Be thorough. If multiple people are mentioned, save each one separately. Always use the tools to save data — never just return text. Call findPerson first; if it returns personId null, call createPerson.`,
+    system: `You are a relationship memory assistant. Process raw notes about meetings, conversations, and interactions. Extract all people mentioned, their details, any commitments or follow-up actions, and any personal details worth remembering. Be thorough. If multiple people are mentioned, save each one separately. Always use the tools to save data — never just return text. Call saveNoteTitle once with a short, descriptive title for the note (e.g. "Lunch with Sarah", "Stripe CTO intro"). Call findPerson first; if it returns personId null, call createPerson.`,
     prompt: `Process this note and extract everything important: ${text}`,
     tools,
     stopWhen: stepCountIs(10),

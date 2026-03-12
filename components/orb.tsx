@@ -1,11 +1,10 @@
- "use client"
+"use client"
 import { useEffect, useRef, useState } from "react"
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react"
-
-type OrbState = "idle" | "recording" | "transcribing" | "processing" | "done"
+import { useRecordingStore } from "@/stores/recording-store"
+import type { OrbState } from "@/validators/orb-state.validator"
 
 interface OrbProps {
-  state: OrbState
   onTap: () => void
 }
 
@@ -94,7 +93,9 @@ function RecordingTimer({ active }: RecordingTimerProps) {
   )
 }
 
-export function Orb({ state, onTap }: OrbProps) {
+export function Orb({ onTap }: OrbProps) {
+  const state = useRecordingStore((s) => s.state)
+  const stream = useRecordingStore((s) => s.stream)
   const volume = useMotionValue<number>(0)
   const springVolume = useSpring(volume, { stiffness: 200, damping: 20 })
   const orbScale = useTransform(springVolume, [0, 100], [1, 1.14])
@@ -110,9 +111,9 @@ export function Orb({ state, onTap }: OrbProps) {
     if (src) playSound(src)
   }, [state])
 
-  // mic volume analyser
+  // mic volume analyser — uses shared stream from store (no second getUserMedia)
   useEffect(() => {
-    if (state !== "recording") {
+    if (state !== "recording" || !stream) {
       cancelAnimationFrame(animFrameRef.current!)
       volume.set(0)
       return
@@ -127,20 +128,15 @@ export function Orb({ state, onTap }: OrbProps) {
       animFrameRef.current = requestAnimationFrame(tick)
     }
 
-    navigator.mediaDevices
-      .getUserMedia({ audio: true })
-      .then((stream) => {
-        const ctx = new AudioContext()
-        const analyser = ctx.createAnalyser()
-        analyser.fftSize = 256
-        ctx.createMediaStreamSource(stream).connect(analyser)
-        analyserRef.current = analyser
-        tick()
-      })
-      .catch(() => undefined)
+    const ctx = new AudioContext()
+    const analyser = ctx.createAnalyser()
+    analyser.fftSize = 256
+    ctx.createMediaStreamSource(stream).connect(analyser)
+    analyserRef.current = analyser
+    tick()
 
     return () => cancelAnimationFrame(animFrameRef.current!)
-  }, [state, volume])
+  }, [state, stream, volume])
 
   const cfg = stateConfig[state]
 

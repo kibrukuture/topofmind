@@ -110,6 +110,13 @@ function NoteCard({ note, index, onDeleteRequest }: NoteCardProps) {
       className="relative bg-white border border-neutral-100 rounded-2xl p-4 transition-shadow cursor-default"
       style={{ boxShadow: "0 1px 4px rgba(0,0,0,0.03)" }}
     >
+      {/* title — top, subtle gray */}
+      {note.title?.trim() && (
+        <p className="text-[11px] text-neutral-400 mb-2 leading-tight">
+          {note.title.trim()}
+        </p>
+      )}
+
       {/* delete — only on hover */}
       <AnimatePresence>
         {hovered && (

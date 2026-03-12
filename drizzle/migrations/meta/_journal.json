@@ -43,6 +43,13 @@
       "when": 1773307328010,
       "tag": "0005_little_trauma",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1773311045031,
+      "tag": "0006_lame_freak",
+      "breakpoints": true
     }
   ]
 }

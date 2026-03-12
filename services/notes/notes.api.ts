@@ -3,6 +3,7 @@ import { NOTES_ROUTES } from "@/lib/api/notes.routes";
 
 export type NoteWithPeople = {
   id: string;
+  title: string | null;
   rawText: string;
   audioStorageKey: string | null;
   createdAt: string;

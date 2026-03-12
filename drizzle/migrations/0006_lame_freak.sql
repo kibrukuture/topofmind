@@ -1,0 +1,1 @@
+ALTER TABLE "topofmind"."notes" ADD COLUMN "title" text;
