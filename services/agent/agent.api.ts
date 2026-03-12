@@ -1,13 +1,14 @@
-import { AGENT_ROUTES } from "@/lib/api/agent.routes"; 
+import { AGENT_ROUTES } from "@/lib/api/agent.routes";
 import { get, postFormData } from "@/services";
-import type { AgentResponse} from "@/validators/agent.validator";
-export type ProcessNoteInput = { text?: string; audio?: Blob };
+import type { AgentResponse, ProcessNoteInput } from "@/validators/agent.validator";
 
 export async function processNote(input: ProcessNoteInput): Promise<AgentResponse> {
   const formData = new FormData();
-  if (input.text) formData.append("text", input.text);
+  if (input.text !== undefined) formData.append("text", input.text);
   if (input.audio) formData.append("audio", input.audio, "recording.webm");
-
+  if (input.files?.length) {
+    for (const file of input.files) formData.append("files", file, file.name);
+  }
   return postFormData<AgentResponse>(AGENT_ROUTES.process(), formData);
 }
 

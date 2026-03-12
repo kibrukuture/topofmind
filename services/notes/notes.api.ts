@@ -1,14 +1,6 @@
 import { get, del } from "@/services";
 import { NOTES_ROUTES } from "@/lib/api/notes.routes";
-
-export type NoteWithPeople = {
-  id: string;
-  title: string | null;
-  rawText: string;
-  audioStorageKey: string | null;
-  createdAt: string;
-  people: { id: string; name: string; role?: string | null; company?: string | null }[];
-};
+import type { NoteWithPeople } from "@/validators/note-with-people.validator";
 
 export async function listNotes(): Promise<NoteWithPeople[]> {
   return get<NoteWithPeople[]>(NOTES_ROUTES.list());

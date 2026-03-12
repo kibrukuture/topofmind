@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import * as agentApi from "@/services/agent/agent.api";
-import type { ProcessNoteInput } from "@/services/agent/agent.api";
+import type { ProcessNoteInput } from "@/validators/agent.validator";
 import { QUERY_KEYS } from "@/lib/tanstack/query-keys"; 
 
 export function useProcessNote() {

@@ -3,15 +3,8 @@ import { getDb } from "@/configs/db";
 import { notes, personNotes, people } from "@/drizzle/schema";
 import { eq, inArray } from "@/drizzle";
 import { apiSuccessResponse, apiErrorResponse, ErrorCode } from "@/configs/api";
-
-export type NoteWithPeople = {
-  id: string;
-  title: string | null;
-  rawText: string;
-  audioStorageKey: string | null;
-  createdAt: string;
-  people: { id: string; name: string; role?: string | null; company?: string | null }[];
-};
+import { parseNoteAttachments } from "@/validators/note-attachment.validator";
+import type { NoteWithPeople } from "@/validators/note-with-people.validator";
 
 export async function GET() {
   try {
@@ -51,11 +44,13 @@ export async function GET() {
         company: p.company ?? undefined,
       }));
 
+    const attachments = parseNoteAttachments(note.attachments);
     return {
       id: note.id,
       title: note.title ?? null,
       rawText: note.rawText,
       audioStorageKey: note.audioStorageKey,
+      attachments,
       createdAt: note.createdAt.toISOString(),
       people: notePeople,
     };

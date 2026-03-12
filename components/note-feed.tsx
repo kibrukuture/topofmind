@@ -2,11 +2,11 @@
 "use client"
 import { useRef, useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
-import { Play, Pause, Clock, Trash } from "@phosphor-icons/react"
+import { Play, Pause, Clock, Trash, Paperclip } from "@phosphor-icons/react"
 import { getStoragePublicUrl } from "@/lib/storage-url"
 import { useListNotes } from "@/hooks/notes/use-list-notes"
 import { useDeleteNote } from "@/hooks/notes/use-delete-note"
-import type { NoteWithPeople } from "@/services/notes/notes.api"
+import type { NoteWithPeople } from "@/validators/note-with-people.validator"
 import {
   Dialog,
   DialogContent,
@@ -170,6 +170,24 @@ function NoteCard({ note, index, onDeleteRequest }: NoteCardProps) {
       <p className="text-[13px] text-neutral-600 leading-relaxed line-clamp-4">
         {note.rawText}
       </p>
+
+      {note.attachments?.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {note.attachments.map((att) => (
+            <a
+              key={att.key}
+              href={getStoragePublicUrl(att.key)}
+              download={att.name}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-neutral-400 hover:text-neutral-600 transition-colors"
+            >
+              <Paperclip size={10} />
+              {att.name}
+            </a>
+          ))}
+        </div>
+      )}
 
       {isVoice && audioUrl && <AudioPlayer src={audioUrl} />}
     </motion.div>

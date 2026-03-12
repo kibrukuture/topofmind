@@ -3,6 +3,7 @@ import { notes, personNotes, commitments, personalDetails } from "@/drizzle/sche
 import { eq } from "@/drizzle"
 import { deleteFile } from "@/configs/s3"
 import { apiSuccessResponse, apiErrorResponse, ErrorCode } from "@/configs/api"
+import { parseNoteAttachments } from "@/validators/note-attachment.validator"
 
 export async function DELETE(
   _req: Request,
@@ -37,6 +38,12 @@ export async function DELETE(
   if (note.audioStorageKey) {
     await deleteFile(note.audioStorageKey).catch(() => undefined)
   }
+
+  // delete attachment files from storage
+  const attachments = parseNoteAttachments(note.attachments)
+  await Promise.all(
+    attachments.map((att) => deleteFile(att.key).catch(() => undefined))
+  )
 
   // delete all related records first (fk constraints)
   await db.delete(personNotes).where(eq(personNotes.noteId, id))

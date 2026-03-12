@@ -36,13 +36,13 @@ export const NoteInput = forwardRef<NoteInputRef, NoteInputProps>(function NoteI
 
   const form = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
-    defaultValues: { text: "" },
+    defaultValues: { text: "", files: [] },
   });
 
   const text = form.watch("text");
 
   useImperativeHandle(ref, () => ({
-    resetForm: () => form.reset({ text: "" }),
+    resetForm: () => form.reset({ text: "", files: [] }),
   }));
 
   useEffect(() => {

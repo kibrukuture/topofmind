@@ -6,6 +6,15 @@ export const agentBodySchema = z.object({
 
 export type AgentBody = z.infer<typeof agentBodySchema>;
 
+/** Single source of truth for process-note mutation input (client → FormData). */
+export const processNoteInputSchema = z.object({
+  text: z.string().optional(),
+  audio: z.instanceof(Blob).optional(),
+  files: z.array(z.instanceof(File)).optional(),
+});
+
+export type ProcessNoteInput = z.infer<typeof processNoteInputSchema>;
+
 export const agentResponseSchema = z.object({
   noteId: z.string(),
   toolCallLog: z.array(

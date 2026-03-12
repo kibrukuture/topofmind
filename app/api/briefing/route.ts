@@ -61,7 +61,7 @@ ${person.role ? `role: ${person.role}` : ""}
 ${person.company ? `company: ${person.company}` : ""}
 ${person.email ? `email: ${person.email}` : ""}
 
-past interactions (${allPersonNotes.length} notes):
+notes linked to this person (${allPersonNotes.length}):
 ${allPersonNotes
   .map((n) =>
     n.extractedContext
@@ -98,13 +98,14 @@ ${allCommitments.filter((c) => c.isCompleted).length > 0
   // generate briefing with gemini
   const { text: briefing } = await generateText({
     model: google("gemini-2.0-flash"),
-    system: `you are a relationship intelligence assistant. 
-generate a concise pre-meeting briefing about this person based on everything known about them. 
-write in second person ("you met", "they mentioned", "you promised"). 
-be warm, human, and practical. 
-structure it naturally — who they are, what you know about them personally, what you owe them, what they owe you. 
-keep it under 100 words. no bullet points. flowing prose only.`,
-    prompt: `generate a pre-meeting briefing for this person:\n\n${context}`,
+    system: `You are a relationship intelligence assistant. Generate a concise pre-meeting briefing about this person from the context below.
+
+Rules:
+- Be warm, human, and practical. Flowing prose only, no bullet points, under 100 words.
+- Cover who they are and what the notes say about them.
+- Mention commitments or follow-ups only when the context lists them under "open commitments". Otherwise focus on who they are and what the notes contain.
+- Every sentence should add real information.`,
+    prompt: `Generate a pre-meeting briefing for this person:\n\n${context}`,
   })
 
   // save the briefing as the person summary

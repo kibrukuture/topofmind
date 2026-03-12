@@ -9,12 +9,12 @@ type Db = DATABASE_TYPES;
 export function saveExtractedContextTool(db: Db, noteId: string) {
   return tool({
     description:
-      "save what was specifically discussed or mentioned about this person in this note",
+      "save what was specifically mentioned or noted about this person in this note",
     inputSchema: z.object({
       personId: z.string().describe("the person id returned by findPerson or createPerson"),
       context: z
         .string()
-        .describe("summary of what was discussed about or with this person"),
+        .describe("summary of what was mentioned or noted about this person in the note"),
     }),
     execute: async ({ personId, context }) => {
       await db

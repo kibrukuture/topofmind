@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Brain } from "@phosphor-icons/react"
+import { Brain, Paperclip } from "@phosphor-icons/react"
 import { motion, AnimatePresence } from "motion/react"
 import { Orb } from "@/components/orb"
 import { StatusText } from "@/components/status-text"
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/form"
 import { noteFormSchema, type NoteFormValues } from "@/validators/note-form.validator"
 import { useProcessNote } from "@/hooks/agent/use-process-note"
+import type { ProcessNoteInput } from "@/validators/agent.validator"
 import { useLatestNoteResult } from "@/hooks/agent/use-latest-note-result"
 import { useRecordingStore } from "@/stores/recording-store"
 
@@ -57,10 +58,11 @@ export default function Home() {
 
   const typeForm = useForm<NoteFormValues>({
     resolver: zodResolver(noteFormSchema),
-    defaultValues: { text: "" },
+    defaultValues: { text: "", files: [] },
   })
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const runProcessNote = async (input: { text?: string; audio?: Blob }): Promise<void> => {
+  const runProcessNote = async (input: ProcessNoteInput): Promise<void> => {
     setState("processing")
     try {
       await processNoteMutation.mutateAsync(input)
@@ -86,10 +88,11 @@ export default function Home() {
 
   const handleTypeSubmit = typeForm.handleSubmit(async (values: NoteFormValues): Promise<void> => {
     const text = values.text.trim()
-    if (!text) return
+    const files = values.files?.length ? values.files : undefined
+    if (!text && !files?.length) return
     setShowTypeInput(false)
-    typeForm.reset({ text: "" })
-    await runProcessNote({ text })
+    typeForm.reset({ text: "", files: [] })
+    await runProcessNote({ text: text || undefined, files })
   })
 
   return (
@@ -166,13 +169,46 @@ export default function Home() {
                       render={({ field }) => (
                         <FormItem>
                           <FormControl>
-                            <textarea
-                              {...field}
-                              autoFocus
-                              rows={3}
-                              placeholder="met sarah at stripe today, she is the cto..."
-                              className="w-full text-[13px] text-neutral-700 placeholder-neutral-300 bg-neutral-50 border border-neutral-100 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:border-neutral-200 transition-colors"
-                            />
+                            {(() => {
+                              const files = typeForm.watch("files")
+                              return (
+                                <div className="space-y-1">
+                                  <div className="relative">
+                                    <textarea
+                                      {...field}
+                                      autoFocus
+                                      rows={3}
+                                      placeholder="met sarah at stripe today, she is the cto..."
+                                      className="w-full text-[13px] text-neutral-700 placeholder-neutral-300 bg-neutral-50 border border-neutral-100 rounded-xl pl-3 pr-10 py-2.5 resize-none focus:outline-none focus:border-neutral-200 transition-colors"
+                                    />
+                                    <input
+                                      ref={fileInputRef}
+                                      type="file"
+                                      accept=".pdf,image/jpeg,image/png,image/webp,image/gif"
+                                      multiple
+                                      className="hidden"
+                                      onChange={(e) => {
+                                        const list = e.target.files ? Array.from(e.target.files).slice(0, 2) : []
+                                        typeForm.setValue("files", list, { shouldValidate: true })
+                                      }}
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => fileInputRef.current?.click()}
+                                      className="absolute right-2.5 top-2.5 p-1 rounded-lg text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 transition-colors"
+                                      title="Attach PDF or image (max 2)"
+                                    >
+                                      <Paperclip size={16} />
+                                    </button>
+                                  </div>
+                                  {files?.length ? (
+                                    <p className="text-[11px] text-neutral-400 mt-1">
+                                      {files.map((f) => f.name).join(", ")}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              )
+                            })()}
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -180,7 +216,7 @@ export default function Home() {
                     />
                     <button
                       type="submit"
-                      disabled={!typeForm.watch("text")?.trim()}
+                      disabled={!typeForm.watch("text")?.trim() && !typeForm.watch("files")?.length}
                       className="w-full text-[12px] font-semibold bg-neutral-900 hover:bg-neutral-700 disabled:opacity-25 text-white py-2 rounded-xl transition-colors"
                     >
                       process note
