@@ -7,8 +7,8 @@ export function useProcessNote() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: ProcessNoteInput) => agentApi.processNote(input),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.AGENT.LATEST });
+    onSuccess: (data) => {
+      queryClient.setQueryData(QUERY_KEYS.AGENT.LATEST, data);
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.NOTES.LIST });
     },
   });

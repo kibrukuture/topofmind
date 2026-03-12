@@ -37,7 +37,7 @@ export default function Home() {
 
   const processNoteMutation = useProcessNote()
   const latestNoteQuery = useLatestNoteResult()
-  const latestNoteResult = processNoteMutation.data ?? latestNoteQuery.data ?? null
+  const latestNoteResult = latestNoteQuery.data ?? null
 
   // auto reset done → idle after 3s
   useEffect(() => {
