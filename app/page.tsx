@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Brain, Paperclip } from "@phosphor-icons/react"
+import { Brain, Paperclip, GithubLogo } from "@phosphor-icons/react"
 import { motion, AnimatePresence } from "motion/react"
 import { Orb } from "@/components/orb"
 import { StatusText } from "@/components/status-text"
@@ -107,7 +107,18 @@ export default function Home() {
               top of mind
             </span>
           </div>
-          <SearchBar />
+          <div className="flex items-center gap-3">
+            <SearchBar />
+            <a
+              href="https://github.com/kibrukuture/topofmind"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-neutral-300 hover:text-neutral-500 transition-colors"
+              aria-label="View source on GitHub"
+            >
+              <GithubLogo size={18} />
+            </a>
+          </div>
         </div>
       </div>
 
